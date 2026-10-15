@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ДО / ПОСЛЕ — интерактивная история</title>
+<style>
+:root{--bg:#0b0c0f;--panel:#15171c;--panel2:#1c1f25;--text:#f5f5f7;--muted:#9b9da5;--line:#2a2d34;--accent:#0a84ff;--radius:22px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",Arial,sans-serif}
+body{display:flex;justify-content:center}
+button{font:inherit}
+.app{width:min(100%,760px);min-height:100vh;padding:env(safe-area-inset-top) 16px calc(28px + env(safe-area-inset-bottom))}
+.top{position:sticky;top:0;z-index:5;padding:14px 0 10px;background:linear-gradient(var(--bg) 75%,transparent);display:flex;align-items:flex-start;gap:12px}.top-main{flex:1}.sound-toggle{width:38px;height:38px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);font-size:18px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}.sound-toggle:active{transform:scale(.96)}
+.brand{font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.progress{display:flex;gap:5px;margin-top:10px}
+.dot{height:4px;flex:1;border-radius:99px;background:#282b31}
+.dot.on{background:#f5f5f7}
+.screen{padding:26px 0 30px;min-height:calc(100vh - 75px);display:flex;flex-direction:column}
+.eyebrow{font-size:13px;color:var(--muted);margin-bottom:14px}
+h1{font-size:clamp(34px,9vw,64px);line-height:.98;letter-spacing:-.045em;margin:0 0 18px}
+h2{font-size:clamp(26px,7vw,40px);line-height:1.03;letter-spacing:-.035em;margin:0 0 18px}
+p{font-size:18px;line-height:1.42;margin:0 0 18px}
+.chat{margin:10px 0 24px;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:86%;padding:13px 16px;border-radius:19px;font-size:17px;line-height:1.35;animation:msgIn .24s ease both}.msg:nth-child(2){animation-delay:.12s}.msg:nth-child(3){animation-delay:.24s}.msg:nth-child(4){animation-delay:.36s}
+.msg.them{align-self:flex-start;background:#25282f;border-bottom-left-radius:7px}
+.msg.you{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:7px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:8px 0 20px}
+.small{font-size:14px;color:var(--muted);line-height:1.45}
+.narrative-wrap{margin:18px 0 28px;max-width:94%}.narrative-label{margin:0 0 7px 14px;color:#6f7480;font-size:10px;line-height:1.2;letter-spacing:.14em;text-transform:uppercase;font-weight:600}.narrative{margin:0;padding:2px 0 2px 14px;border-left:2px solid #4b515d;color:#aeb2bc;font-size:14px;line-height:1.6;max-width:100%}.narrative-before{margin-top:14px;margin-bottom:18px}
+.choices{margin-top:auto;display:grid;gap:10px}
+.choice{width:100%;min-height:52px;border:0;border-radius:18px;padding:15px 17px;background:var(--panel2);color:var(--text);font-size:16px;text-align:left;cursor:pointer}
+.choice.primary{background:#f2f2f7;color:#0b0c0f}
+.choice:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media (prefers-reduced-motion:no-preference){.fade{animation:fade .22s ease}@keyframes fade{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes msgIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+<div class="top"><div class="top-main"><div class="brand">ДО / ПОСЛЕ</div><div class="progress" id="progress" aria-hidden="true"></div></div><button class="sound-toggle" id="soundToggle" type="button" aria-label="Включить звук" title="Звук">🔇</button></div>
+<section class="screen fade" id="screen" aria-live="polite"></section>
+</main>
+<script>
+const nodes={"start":{"type":"intro","title":"ДО / ПОСЛЕ","text":"Интерактивная история о том, как обычное общение может постепенно менять правила. Здесь нет заранее «правильного» маршрута: каждое решение влияет на то, что произойдёт дальше.","button":"Начать","next":"contact"},"contact":{"title":"ТЕБЕ ПИШЕТ НЕЗНАКОМЫЙ ЧЕЛОВЕК.","chat":[["them","Привет. Видел твой пост. Круто написал. Мы раньше не общались?"]],"choices":[["Не хочу общаться.","contact_pressure"],["Нет, не общались. А ты кто?","contact_open"],["Ничего не отвечать.","contact_silent"]]},"contact_pressure":{"title":"ТЫ ПОСТАВИЛ ГРАНИЦУ.","chat":[["them","Да ладно. Чего ты сразу? Просто пять минут поговорим."]],"choices":[["Нет. Я сказал, что не хочу.","end_boundary"],["Ну ладно. Что хотел?","pressure_continue"],["Заблокировать.","end_block"]],"echoChoice":true},"contact_silent":{"title":"ТЫ НЕ ОТВЕТИЛ.","chat":[["them","Окей. Если не хочешь — не отвечай. Просто подумал, что тебе может быть интересно."],["them","Если всё-таки интересно, могу рассказать про один закрытый чат."]],"text":"Он не требует ответа и не давит. Но оставляет возможность продолжить разговор, если ты сам захочешь.","choices":[["Не отвечать.","end_silent"],["Что за чат?","chat_info"]]},"contact_open":{"title":"ТЫ ОТВЕТИЛ.","chat":[["them","Да просто увидел твой пост. Интересно пишешь. Есть закрытый чат, там ребята примерно твоего возраста. Могу скинуть, если хочешь."]],"choices":[["Что за чат?","chat_info"],["Неинтересно.","chat_refuse"],["Добавь меня.","chat_join"]],"echoChoice":true},"chat_refuse":{"title":"ТЫ ОТКАЗАЛСЯ.","chat":[["them","Окей. Не буду навязываться."]],"choices":[["Закончить историю.","end_safe"]],"echoChoice":true},"chat_info":{"title":"ТЫ УЗНАЁШЬ О ЧАТЕ.","chat":[["them","Это обычный закрытый чат. Обсуждаем музыку, новости и то, что происходит вокруг. Если не зайдёт — выйдешь."]],"choices":[["Если можно, добавь меня.","chat_join"],["Нет, спасибо.","chat_refuse"],["А зачем он закрытый?","chat_why"]],"echoChoice":true},"chat_why":{"title":"ТЫ НЕ ПРОСТО СОГЛАСИЛСЯ.","chat":[["them","Потому что со стороны не всегда правильно понимают, о чём мы говорим. Не хочется, чтобы наши разговоры трактовали как-то иначе."]],"choices":[["Ладно, посмотрю.","chat_join"],["Мне не нравится такая идея.","end_safe"],["Что ты имеешь в виду?","chat_explain"]],"echoChoice":true},"chat_explain":{"title":"ТЫ ПРОСИШЬ ОБЪЯСНИТЬ.","chat":[["them","Ничего особенного. Просто здесь люди, которым интересно обсуждать одни и те же темы без лишнего шума."]],"choices":[["Покажи, что там происходит.","chat_join"],["Тогда я пас.","end_safe"]],"echoChoice":true},"chat_join":{"title":"ТЫ ВОШЁЛ В ЧАТ.","chat":[["them","Хорошо. Сейчас добавлю."],["them","Готово. Вот чат. Освойся."]],"text":"Первые сообщения выглядят обычно: музыка, мемы, разговоры о городе и о том, что бесит.","choices":[["Остаться и посмотреть.","belonging"],["Выйти.","end_exit_chat"]],"echoChoice":true},"belonging":{"title":"ПРОШЛО НЕМНОГО ВРЕМЕНИ.","beforeText":"Прошло несколько дней. Ты иногда заходил в чат, что-то читал, иногда отвечал. Постепенно тебя начали воспринимать как своего.","chat":[["them","Слушай, а ты вообще с нами или просто наблюдаешь?"]],"choices":[["Я реально с вами.","loyalty_yes"],["А что значит «с вами»?","loyalty_question"],["Ничего не отвечать.","loyalty_silent"],["Мне это уже не нравится. Я выхожу.","end_exit_chat"]],"echoChoice":true},"loyalty_yes":{"title":"ТЫ РЕШИЛ БЫТЬ С НИМИ.","echoChoice":true,"chat":[["them","Окей. Тогда дальше всё проще. Есть одна вещь, о которой мы не рассказываем посторонним."]],"choices":[["Что именно вы не рассказываете?","secrecy_question"],["Мне не нравится, что от меня уже что-то скрывают.","end_exit_chat"]]},"loyalty_question":{"title":"ТЫ ПРОСИШЬ УТОЧНИТЬ.","chat":[["them","Что тебе интересны наши разговоры и ты хочешь быть частью компании, а не просто читать со стороны."]],"choices":[["Понял. Я с вами.","loyalty_yes"],["Я пока просто смотрю.","observer_response"],["Тогда я, пожалуй, выйду.","end_exit_chat"]],"echoChoice":true},"loyalty_silent":{"title":"ТЫ ПРОМОЛЧАЛ.","chat":[["them","Я не понял. Ты хочешь просто читать или хочешь быть с нами?"]],"choices":[["Я пока просто смотрю.","observer_response"],["Я с вами.","loyalty_yes"],["Не хочу продолжать.","end_exit_chat"]],"echoChoice":true},"observer_response":{"title":"ТЫ НЕ СТАЛ ДАВАТЬ ОБЕЩАНИЙ.","chat":[["them","Окей. Тогда просто оставайся наблюдателем. Не всё, что обсуждаем здесь, мы готовы рассказывать каждому."]],"text":"Ты не согласился на новые условия. Теперь решение за тобой: остаться наблюдателем или выйти.","choices":[["Остаться и посмотреть дальше.","observer_stay"],["Выйти.","end_exit_chat"]],"echoChoice":true},"observer_stay":{"title":"ТЫ ОСТАЛСЯ НАБЛЮДАТЕЛЕМ.","chat":[["them","Хорошо. Тогда просто читай. Никто тебя не торопит."]],"beforeText":"Через некоторое время в чате впервые появляется правило о том, что часть разговоров должна оставаться внутри.","chatAfter":[["them","Давайте некоторые вещи здесь не выносить наружу."]],"text":"Ты можешь решить, как к этому относиться.","choices":[["Что именно вы не хотите выносить наружу?","secrecy_question"],["Просто промолчать.","secrecy_silent"],["Мне это не подходит. Выйду.","end_exit_chat"]]},"secrecy_question":{"title":"ТЫ УТОЧНЯЕШЬ.","chat":[["them","Ничего конкретного. Скорее, просто не хочется, чтобы отдельные разговоры из этого чата уходили наружу."]],"choices":[["Почему?","secrecy_why"],["Я не хочу соглашаться на такие правила.","end_exit_chat"],["Если мне станет некомфортно, я всё равно расскажу человеку, которому доверяю.","help_prepressure"]],"echoChoice":true},"secrecy_silent":{"type":"end","title":"ТЫ ПРОМОЛЧАЛ.","text":"Ты не согласился и не отказался — просто не стал отвечать. Молчание не означает согласие, но и не решает ситуацию. Если подобное происходит в реальной жизни, важно не оставаться с этим один на один и рассказать человеку, которому доверяешь, или обратиться к специалисту.","label":"Молчание под давлением."},"secrecy_accept":{"title":"ТЫ РЕШИЛ ПОКА НЕ РАССКАЗЫВАТЬ.","echoChoice":true,"chat":[["them","Хорошо. Значит, мы друг друга поняли."],["them","Тогда есть ещё один момент. Если ты действительно с нами, это ещё нужно показать."]],"choices":[["Что ты имеешь в виду?","demand_explain"],["Мне уже некомфортно. Я выхожу.","end_exit_chat"]]},"demand_explain":{"title":"ТЫ ПРОСИШЬ КОНКРЕТИКИ.","chat":[["them","Есть одна просьба. Но сначала нужно пообещать, что ты никому об этом не расскажешь."]],"text":"Здесь появляется новый элемент: от тебя требуют не просто участия, а тайны и доказательства лояльности.","choices":[["Нет. На таких условиях я не участвую.","end_refuse_demand"],["Я расскажу человеку, которому доверяю.","end_help"],["Хорошо. Обещаю.","involvement"]],"echoChoice":true},"help_prepressure":{"title":"ТЫ СРАЗУ ВЫБРАЛ ПОДДЕРЖКУ.","chat":[["them","Зачем? Мы ведь просто общаемся."]],"choices":[["Всё равно расскажу.","end_help"],["Ладно, пока промолчу.","secrecy_accept"]],"echoChoice":true},"help":{"title":"ТЫ РЕШИЛ НЕ ОСТАВАТЬСЯ С ЭТИМ ОДИН.","echoChoice":true,"chat":[["them","Зачем? Ты же сам согласился."]],"choices":[["Всё равно расскажу.","end_help"],["Я ничего не скажу.","end_silent_after_pressure"]],"echoChoice":true},"involvement":{"title":"ТЫ СОГЛАСИЛСЯ.","echoChoice":true,"chat":[["them","Вот теперь понятно, что тебе можно доверять."],["them","Дальше разговор будет серьёзнее."]],"text":"Ты уже не просто читаешь сообщения: от тебя ждут дальнейших действий и молчания.","choices":[["Стоп. Я выхожу.","end_late_exit"],["Продолжить.","end_involvement"],["Рассказать тому, кому доверяю.","help"]]},"end_boundary":{"type":"end","title":"ТЫ ОСТАНОВИЛСЯ СРАЗУ.","text":"Ты обозначил границу и не позволил давлению изменить своё решение.","label":"Ранний выход."},"end_block":{"type":"end","title":"КОНТАКТ ОБОРВАН.","text":"Ты не стал продолжать разговор и заблокировал контакт.","label":"Ранний выход."},"end_silent":{"type":"end","title":"ИСТОРИЯ НЕ ПРОДОЛЖИЛАСЬ.","text":"Ты не обязан отвечать незнакомому человеку. В этой истории всё закончилось до того, как возникло давление.","label":"Выход без вовлечения."},"end_safe":{"type":"end","title":"ТЫ ВЫБРАЛ НЕ ПРОДОЛЖАТЬ.","text":"Ты задал вопрос, получил ответ и сохранил право остановиться. Это нормальный исход.","label":"Граница сохранена."},"end_exit_chat":{"type":"end","title":"ТЫ ВЫШЕЛ.","text":"Ты заметил момент, когда правила общения стали меняться, и остановил историю до следующего шага.","label":"Выход из ситуации."},"end_refuse_demand":{"type":"end","title":"ТЫ НЕ СТАЛ ДОКАЗЫВАТЬ ЛОЯЛЬНОСТЬ.","text":"Когда общение превращается в требование тайны и доказательств «своих», ты остановился.","label":"Граница на этапе давления."},"end_late_exit":{"type":"end","title":"ТЫ ВЫШЕЛ, КОГДА СТАЛО СЕРЬЁЗНО.","text":"Ты уже сделал несколько шагов, но в любой момент можно остановиться. Позднее решение всё равно имеет значение.","label":"Поздний выход."},"end_involvement":{"type":"end","title":"ТЫ ПРОДОЛЖИЛ.","text":"История дошла до точки, где от тебя ждут дальнейших действий и молчания. В реальной жизни на этом этапе особенно важно не оставаться одному и обратиться за помощью.","label":"Продолжение вовлечения."},"end_help":{"type":"end","title":"ТЫ РЕШИЛ РАССКАЗАТЬ.","text":"Давление не становится нормальным только потому, что ты однажды согласился. Обращение к человеку, которому доверяешь, может остановить развитие ситуации.","label":"Поиск поддержки."},"end_silent_after_pressure":{"type":"end","title":"ТЫ ПРОМОЛЧАЛ.","text":"Страх или давление могут заставить человека молчать. Но молчание не означает, что ситуацию нельзя изменить. Если такое происходит в реальной жизни, важно рассказать человеку, которому доверяешь, или обратиться к специалисту.","label":"Ты промолчал под давлением."},"pressure_continue":{"title":"ТЫ УСТУПИЛ ПОСЛЕ НАЖИМА.","chat":[["them","Да ничего особенного. Есть закрытый чат, там ребята примерно твоего возраста. Могу добавить."]],"choices":[["Что за чат?","chat_info"],["Передумал. Не хочу.","end_boundary"],["Рассказывай.","chat_info"]],"echoChoice":true},"secrecy_why":{"title":"ТЫ СПРАШИВАЕШЬ «ПОЧЕМУ?»","chat":[["them","Потому что со стороны не всегда правильно понимают, о чём мы говорим. Не хочется, чтобы наши разговоры трактовали как-то иначе."]],"choices":[["Ладно, понял. Посмотрю дальше.","secrecy_continue"],["Я не хочу соглашаться на такие правила.","end_exit_chat"],["Если мне станет некомфортно, я всё равно расскажу человеку, которому доверяю.","help_prepressure"]],"echoChoice":true},"secrecy_continue":{"title":"ТЫ РЕШИЛ ПРОДОЛЖИТЬ.","chat":[["them","Хорошо. Тогда просто посмотри, что здесь происходит."],["them","Тогда есть ещё один момент. Если ты действительно с нами, это ещё нужно показать."]],"choices":[["Что ты имеешь в виду?","demand_explain"],["Мне уже некомфортно. Я выхожу.","end_exit_chat"]],"echoChoice":true}};
+const state={node:"start",path:[]};
+const screen=document.getElementById("screen");
+const progress=document.getElementById("progress");
+
+function restart(){
+  state.node="start";
+  state.path=[];
+  render();
+}
+function choose(index){
+  const node=nodes[state.node];
+  if(!node||!Array.isArray(node.choices)||!node.choices[index]) return;
+  const [label,next]=node.choices[index];
+  if(!nodes[next]) return;
+  state.path.push({node:state.node,choice:label});
+  state.node=next;
+  render();
+}
+function esc(value){
+  return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const audio={
+  enabled:true,started:false,ctx:null,master:null,music:null,timer:null,
+  mood:.12,step:0,nextTime:0,bpm:72,
+  init(){
+    if(this.started)return;
+    try{
+      const C=window.AudioContext||window.webkitAudioContext;
+      if(!C)return;
+      this.ctx=new C();
+      this.master=this.ctx.createGain();
+      this.master.gain.value=.0001;
+      this.master.connect(this.ctx.destination);
+
+      const filter=this.ctx.createBiquadFilter();
+      filter.type="lowpass";
+      filter.frequency.value=1800;
+      filter.Q.value=.35;
+      filter.connect(this.master);
+
+      this.music={filter};
+      this.started=true;
+      this.ctx.resume();
+      this.startMusic();
+      this.setMood(.12,true);
+    }catch(e){console.warn("Audio unavailable",e)}
+  },
+  startMusic(){
+    if(!this.started||this.timer)return;
+    this.nextTime=this.ctx.currentTime+.08;
+    this.step=0;
+    this.timer=setInterval(()=>this.scheduleMusic(),90);
+  },
+  stopMusic(){
+    if(this.timer){clearInterval(this.timer);this.timer=null}
+  },
+  tone(freq,time,duration,volume,type="sine"){
+    const c=this.ctx;
+    const o=c.createOscillator(),g=c.createGain();
+    o.type=type;
+    o.frequency.setValueAtTime(freq,time);
+    g.gain.setValueAtTime(.0001,time);
+    g.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),time+.045);
+    g.gain.exponentialRampToValueAtTime(.0001,time+duration);
+    o.connect(g);g.connect(this.music.filter);
+    o.start(time);o.stop(time+duration+.03);
+  },
+  chord(freqs,time,duration,volume){
+    freqs.forEach((f,i)=>this.tone(f,time,duration,volume*(i===0?1:.72),i===0?"sine":"triangle"));
+  },
+  scheduleMusic(){
+    if(!this.started||!this.enabled)return;
+    const c=this.ctx, beat=60/this.bpm, horizon=c.currentTime+.45;
+    const chords=[
+      [146.83,174.61,220.00], // Dm
+      [116.54,146.83,174.61], // Bb
+      [130.81,164.81,196.00], // C
+      [130.81,164.81,220.00]  // F
+    ];
+    const melody=[
+      293.66,0,349.23,0,392.00,349.23,329.63,0,
+      293.66,0,261.63,293.66,349.23,0,329.63,0
+    ];
+    while(this.nextTime<horizon){
+      const step=this.step%16;
+      if(step%4===0){
+        const ch=chords[(this.step/4|0)%chords.length];
+        const padVolume=.010+this.mood*.006;
+        this.chord(ch,this.nextTime,beat*3.7,padVolume);
+      }
+      const note=melody[step];
+      if(note){
+        const melodyVolume=.008+this.mood*.004;
+        this.tone(note,this.nextTime,beat*.72,melodyVolume,"sine");
+      }
+      this.nextTime+=beat;
+      this.step++;
+    }
+  },
+  setMood(v,instant=false){
+    this.mood=Math.max(.08,Math.min(.75,v));
+    if(!this.started)return;
+    const t=this.ctx.currentTime;
+    const target=.72+(this.mood*.28);
+    this.music.filter.frequency.cancelScheduledValues(t);
+    this.music.filter.frequency.linearRampToValueAtTime(
+      1800-(this.mood*450),t+(instant?.01:.8)
+    );
+    this.master.gain.cancelScheduledValues(t);
+    if(this.enabled)this.master.gain.linearRampToValueAtTime(target,t+(instant?.01:.7));
+  },
+  notify(){
+    if(!this.enabled||!this.started)return;
+    const c=this.ctx,n=c.currentTime;
+    const o=c.createOscillator(),g=c.createGain();
+    o.type="sine";
+    o.frequency.setValueAtTime(740,n);
+    o.frequency.exponentialRampToValueAtTime(520,n+.12);
+    g.gain.setValueAtTime(.0001,n);
+    g.gain.exponentialRampToValueAtTime(.035,n+.018);
+    g.gain.exponentialRampToValueAtTime(.0001,n+.22);
+    o.connect(g);g.connect(this.master);
+    o.start(n);o.stop(n+.24);
+  },
+  send(){
+    if(!this.enabled||!this.started)return;
+    const c=this.ctx,n=c.currentTime;
+    const o=c.createOscillator(),g=c.createGain();
+    o.type="sine";
+    o.frequency.setValueAtTime(480,n);
+    o.frequency.exponentialRampToValueAtTime(360,n+.09);
+    g.gain.setValueAtTime(.0001,n);
+    g.gain.exponentialRampToValueAtTime(.018,n+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,n+.14);
+    o.connect(g);g.connect(this.master);
+    o.start(n);o.stop(n+.16);
+  },
+  fadeOut(){
+    if(!this.started)return;
+    const t=this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(t);
+    this.master.gain.linearRampToValueAtTime(.0001,t+.8);
+  },
+  fadeIn(){
+    if(!this.started||!this.enabled)return;
+    this.startMusic();
+    const t=this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(t);
+    this.master.gain.linearRampToValueAtTime(.72+(this.mood*.28),t+.7);
+  },
+  toggle(){
+    this.enabled=!this.enabled;
+    try{localStorage.setItem("doPosleSound",this.enabled?"1":"0")}catch(e){}
+    if(this.enabled){
+      this.init();
+      this.fadeIn();
+    }else{
+      this.fadeOut();
+    }
+    updateSoundButton();
+  }
+};
+try{audio.enabled=localStorage.getItem("doPosleSound")!=="0"}catch(e){}
+function updateSoundButton(){const b=document.getElementById("soundToggle");if(!b)return;b.textContent=audio.enabled?"🔊":"🔇";b.setAttribute("aria-label",audio.enabled?"Выключить звук":"Включить звук")}
+function audioMoodFor(k){if(/^end_/.test(k))return .10;if(["demand_explain","involvement","help","help_prepressure"].includes(k))return .62;if(["secrecy_question","secrecy_why","secrecy_accept","observer_stay"].includes(k))return .45;if(["belonging","loyalty_yes","loyalty_question","loyalty_silent","observer_response"].includes(k))return .28;return .14}
+function playIncomingFor(n){if(!audio.enabled||!audio.started||!n||!Array.isArray(n.chat))return;const count=n.chat.filter(m=>m[0]==="them").length;for(let i=0;i<count;i++)setTimeout(()=>audio.notify(),260+i*430)}
+function render(){
+  const node=nodes[state.node];
+  if(!node){restart();return;}
+  if(audio.started)audio.setMood(audioMoodFor(state.node));
+  const steps=Math.min(state.path.length+1,12);
+  progress.innerHTML=Array.from({length:12},(_,i)=>'<i class="dot '+(i<steps?'on':'')+'"></i>').join("");
+  let html="";
+  if(node.type==="intro"){
+    html='<div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p>'+esc(node.text)+'</p>'+
+    '<div class="card"><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div>'+
+    '<div class="choices"><button type="button" class="choice primary" data-start>Начать</button></div>';
+  } else if(node.type==="end"){
+    html='<div class="eyebrow">ИСТОРИЯ ЗАКОНЧЕНА</div><h2>'+esc(node.title)+'</h2><p>'+esc(node.text)+'</p>'+
+    '<div class="card"><div class="small">ТВОЯ ТОЧКА ОСТАНОВКИ</div><p style="margin-top:8px">'+esc(node.label)+'</p></div>'+
+    '<div class="card"><div class="small">У каждого «ПОСЛЕ» когда-то было «ДО». Если в реальной жизни тебе или кому-то рядом становится некомфортно, страшно или на тебя давят — не оставайся с этим один. Обратись к человеку, которому доверяешь, или к специалисту.</div></div>'+
+    '<div class="choices"><button type="button" class="choice primary" data-restart>Пройти заново</button></div>';
+  } else {
+    html='<div class="eyebrow">СЦЕНА '+(state.path.length+1)+'</div><h2>'+esc(node.title)+'</h2>';
+    if(node.beforeText) html+='<div class="narrative-wrap narrative-before"><div class="narrative-label">Происходящее</div><div class="narrative">'+esc(node.beforeText)+'</div></div>';
+    if(node.echoChoice && state.path.length){ const prev=state.path[state.path.length-1]; html+='<div class="chat"><div class="msg you">'+esc(prev.choice)+'</div></div>'; }
+    if(Array.isArray(node.chat)) html+='<div class="chat">'+node.chat.map(m=>'<div class="msg '+(m[0]==="you"?'you':'them')+'">'+esc(m[1])+'</div>').join('')+'</div>';
+    if(Array.isArray(node.chatAfter)) html+='<div class="chat">'+node.chatAfter.map(m=>'<div class="msg '+(m[0]==="you"?'you':'them')+'">'+esc(m[1])+'</div>').join('')+'</div>';
+    if(node.text) html+='<div class="narrative-wrap"><div class="narrative-label">Происходящее</div><div class="narrative">'+esc(node.text)+'</div></div>';
+    html+='<div class="choices">'+node.choices.map((c,i)=>'<button type="button" class="choice '+(i===0?'primary':'')+'" data-choice="'+i+'">'+esc(c[0])+'</button>').join('')+'</div>';
+  }
+  screen.innerHTML=html;
+  updateSoundButton();
+  if(state.node!=="start"&&node.type!=="end"){playIncomingFor(node)}
+  if(node.type==="end")audio.fadeOut();
+  const first=screen.querySelector('button');
+  if(first) first.focus({preventScroll:true});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.addEventListener("click",e=>{
+  const btn=e.target.closest("button");
+  if(!btn) return;
+  if(btn.id==="soundToggle"){audio.toggle();return;}
+  if(btn.hasAttribute("data-start")){if(audio.enabled){audio.init();audio.fadeIn();}state.node=nodes.start.next;state.path.push({node:"start",choice:"Начать"});render();return;}
+  if(btn.hasAttribute("data-restart")){restart();return;}
+  if(btn.hasAttribute("data-choice")){if(audio.started&&audio.enabled)audio.send();choose(Number(btn.dataset.choice));}
+});
+document.addEventListener("visibilitychange",()=>{if(!audio.started)return;if(document.hidden)audio.fadeOut();else if(audio.enabled)audio.fadeIn()});
+render();
+updateSoundButton();
+</script>
+</body>
+</html>
