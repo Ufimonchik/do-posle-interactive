@@ -192,7 +192,7 @@ function render(){
   storyState.classList.toggle("tense",phase!=="calm"); document.documentElement.style.setProperty("--glow", phase==="pressure"?"rgba(255,76,76,.13)":phase==="shift"?"rgba(255,180,55,.10)":"rgba(10,132,255,.12)"); if(audio.started) audio.setPhase(phase,true);
   let html="";
   if(node.type==="intro"){
-    html='<div class="intro-hero"><div class="intro-mark">ДО<br>ПОСЛЕ</div><div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p class="intro-sub">'+esc(node.text)+'</p><div class="intro-card"><div class="intro-card-num">01</div><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>';
+    html='<div class="intro-hero"><div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p class="intro-sub">'+esc(node.text)+'</p><div class="intro-card"><div class="intro-card-num">01</div><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>';
   } else if(node.type==="end"){
     html='<div class="end-screen"><div class="eyebrow">ПОСЛЕ</div><h2>'+esc(node.title)+'</h2><p>'+esc(node.text)+'</p>'+
     '<div class="end-card"><div class="small">ТВОЯ ТОЧКА ОСТАНОВКИ</div><p>'+esc(node.label)+'</p></div>'+
