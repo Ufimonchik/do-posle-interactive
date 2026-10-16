@@ -25,6 +25,7 @@ h1{font-size:clamp(34px,9vw,64px);line-height:.98;letter-spacing:-.045em;margin:
 .chat-shell.chat-medium{padding:12px 10px 14px;border:1px solid rgba(255,255,255,.055);background:rgba(21,23,28,.62);border-radius:24px}.chat-medium .chat-head{padding-left:4px}.chat-medium .msg{max-width:84%}
 .chat-shell.chat-long{padding:14px 10px 16px;border:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(21,23,28,.86),rgba(14,15,19,.68));border-radius:26px;box-shadow:inset 0 1px rgba(255,255,255,.025)}.chat-long .chat-head{position:sticky;top:67px;z-index:2;margin:-4px -2px 10px;padding:4px 6px 10px;background:linear-gradient(rgba(21,23,28,.98),rgba(21,23,28,.86),transparent);backdrop-filter:blur(8px)}.chat-long .msg{max-width:82%;padding:12px 15px;font-size:16px}.chat-long .chat{gap:8px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:8px 0 20px}.small{font-size:14px;color:var(--muted);line-height:1.45}
+.intro-card .small{font-size:17px;line-height:1.5;color:var(--muted)}
 .narrative-wrap{margin:18px 0 28px;max-width:94%}.narrative-label{margin:0 0 7px 14px;color:#6f7480;font-size:10px;line-height:1.2;letter-spacing:.14em;text-transform:uppercase;font-weight:600}.narrative{margin:0;padding:2px 0 2px 14px;border-left:2px solid #4b515d;color:#aeb2bc;font-size:14px;line-height:1.6;max-width:100%}.narrative-before{margin-top:14px;margin-bottom:18px}
 .choices{margin-top:auto;display:grid;gap:10px}.choice{width:100%;min-height:52px;border:0;border-radius:18px;padding:15px 17px;background:var(--panel2);color:var(--text);font-size:16px;text-align:left;cursor:pointer;transition:transform .12s ease,background .18s ease,border-color .18s ease; border:1px solid rgba(255,255,255,.035)}.choice.primary{background:#f2f2f7;color:#0b0c0f}.choice:active{transform:scale(.985)}.choice:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .scene-short .choices{padding-top:2px}.scene-medium .choices{padding-top:6px}.scene-long .choices{margin-top:8px;padding:14px 0 2px;border-top:1px solid var(--line)}.scene-long .choice{min-height:54px}
@@ -97,7 +98,7 @@ html[data-theme="night"] .chat-wallpaper{opacity:.56!important;filter:grayscale(
 <main class="app" id="app">
 <div class="top"><div class="top-main"><div class="brand">ДО / ПОСЛЕ</div><div class="story-state" id="storyState">ИСТОРИЯ</div></div><button class="sound-toggle" id="soundToggle" type="button" aria-label="Включить звук" title="Звук">🔇</button></div>
 <section class="screen fade" id="screen" aria-live="polite">
-<div class="intro-hero"><p class="intro-sub">Обычное общение может постепенно менять правила. Здесь нет заранее «правильного» маршрута: каждое решение влияет на то, что произойдёт дальше.</p><div class="intro-card"><div class="intro-card-num">01</div><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>
+<div class="intro-hero"><p class="intro-sub">Обычное общение может постепенно менять правила. Здесь нет заранее «правильного» маршрута: каждое решение влияет на то, что произойдёт дальше.</p><div class="intro-card"><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>
 </section>
 </main>
 <script>
@@ -192,7 +193,7 @@ function render(){
   storyState.classList.toggle("tense",phase!=="calm"); document.documentElement.style.setProperty("--glow", phase==="pressure"?"rgba(255,76,76,.13)":phase==="shift"?"rgba(255,180,55,.10)":"rgba(10,132,255,.12)"); if(audio.started) audio.setPhase(phase,true);
   let html="";
   if(node.type==="intro"){
-    html='<div class="intro-hero"><div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p class="intro-sub">'+esc(node.text)+'</p><div class="intro-card"><div class="intro-card-num">01</div><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>';
+    html='<div class="intro-hero"><div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p class="intro-sub">'+esc(node.text)+'</p><div class="intro-card"><div class="small">Твои решения не «правильные» и не «неправильные». Они меняют то, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>';
   } else if(node.type==="end"){
     html='<div class="end-screen"><div class="eyebrow">ПОСЛЕ</div><h2>'+esc(node.title)+'</h2><p>'+esc(node.text)+'</p>'+
     '<div class="end-card"><div class="small">ТВОЯ ТОЧКА ОСТАНОВКИ</div><p>'+esc(node.label)+'</p></div>'+
