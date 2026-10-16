@@ -27,6 +27,9 @@ h1{font-size:clamp(34px,9vw,64px);line-height:.98;letter-spacing:-.045em;margin:
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:8px 0 20px}.small{font-size:14px;color:var(--muted);line-height:1.45}
 .intro-card .small{font-size:17px;line-height:1.5;color:var(--muted)}
 .intro-hero{margin-top:clamp(150px,28vh,270px)}
+.app.intro-active .brand{visibility:hidden}
+.app.intro-active .brand{display:none}
+.intro-hero + .choices{transform:translateY(-16px)}
 .narrative-wrap{margin:18px 0 28px;max-width:94%}.narrative-label{margin:0 0 7px 14px;color:#6f7480;font-size:10px;line-height:1.2;letter-spacing:.14em;text-transform:uppercase;font-weight:600}.narrative{margin:0;padding:2px 0 2px 14px;border-left:2px solid #4b515d;color:#aeb2bc;font-size:14px;line-height:1.6;max-width:100%}.narrative-before{margin-top:14px;margin-bottom:18px}
 .choices{margin-top:auto;display:grid;gap:10px}.choice{width:100%;min-height:52px;border:0;border-radius:18px;padding:15px 17px;background:var(--panel2);color:var(--text);font-size:16px;text-align:left;cursor:pointer;transition:transform .12s ease,background .18s ease,border-color .18s ease; border:1px solid rgba(255,255,255,.035)}.choice.primary{background:#f2f2f7;color:#0b0c0f}.choice:active{transform:scale(.985)}.choice:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .scene-short .choices{padding-top:2px}.scene-medium .choices{padding-top:6px}.scene-long .choices{margin-top:8px;padding:14px 0 2px;border-top:1px solid var(--line)}.scene-long .choice{min-height:54px}
@@ -96,7 +99,7 @@ html[data-theme="night"] .chat-wallpaper{opacity:.56!important;filter:grayscale(
 </style>
 </head>
 <body>
-<main class="app" id="app">
+<main class="app intro-active" id="app">
 <div class="top"><div class="top-main"><div class="brand">ДО / ПОСЛЕ</div><div class="story-state" id="storyState">ИСТОРИЯ</div></div><button class="sound-toggle" id="soundToggle" type="button" aria-label="Включить звук" title="Звук">🔇</button></div>
 <section class="screen fade" id="screen" aria-live="polite">
 <div class="intro-hero"><p class="intro-sub">Интерактивная история о том, как обычное общение может постепенно менять правила.</p><div class="intro-card"><div class="small">Здесь нет готового правильного пути. Твой выбор определяет, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>
@@ -193,6 +196,7 @@ function render(){
   storyState.textContent=phase==="pressure"?"НАПРЯЖЕНИЕ":phase==="shift"?"РАЗГОВОР МЕНЯЕТСЯ":phase==="after"?"ПОСЛЕ":"ИСТОРИЯ";
   storyState.classList.toggle("tense",phase!=="calm"); document.documentElement.style.setProperty("--glow", phase==="pressure"?"rgba(255,76,76,.13)":phase==="shift"?"rgba(255,180,55,.10)":"rgba(10,132,255,.12)"); if(audio.started) audio.setPhase(phase,true);
   let html="";
+  app.classList.toggle("intro-active", node.type==="intro");
   if(node.type==="intro"){
     html='<div class="intro-hero"><div class="eyebrow">ИНТЕРАКТИВНАЯ ИСТОРИЯ</div><h1>'+esc(node.title)+'</h1><p class="intro-sub">'+esc(node.text)+'</p><div class="intro-card"><div class="small">Здесь нет готового правильного пути. Твой выбор определяет, что произойдёт дальше.</div></div></div><div class="choices"><button type="button" class="choice primary" data-start>Начать историю</button></div>';
   } else if(node.type==="end"){
