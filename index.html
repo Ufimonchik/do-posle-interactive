@@ -51,12 +51,45 @@ html[data-theme="day"] .choice.primary{background:#17181c;color:#fff}
 html[data-theme="day"] .story-state{color:#777c86}
 html[data-theme="day"] .story-state.tense{color:#4f535c}
 html[data-theme="day"] .scene-long .choices{border-top-color:#d8dbe1}
+
+@media (min-width:900px){
+  body{background:radial-gradient(circle at 50% 8%,rgba(10,132,255,.045),transparent 34%),var(--bg)}
+  .app{width:min(100%,800px);padding-left:24px;padding-right:24px}
+  .screen{padding-top:34px}
+  .chat-shell.chat-medium,.chat-shell.chat-long{box-shadow:0 18px 60px rgba(0,0,0,.14)}
+  html[data-theme="day"] .chat-shell.chat-medium,html[data-theme="day"] .chat-shell.chat-long{box-shadow:0 18px 60px rgba(20,40,70,.08)}
+}
 @media (max-width:520px){.app{padding-left:13px;padding-right:13px}.screen{padding-top:22px}.msg{font-size:16px;max-width:89%}.chat-long .msg{font-size:15.5px;max-width:86%}.chat-long .chat-head{top:62px}.choice{font-size:15.5px}}
+/* Атмосферные обои переписки: мягкий эффект чернил в воде, без внешних файлов. */
+.chat-shell{position:relative;isolation:isolate;overflow:hidden;border-radius:26px}
+.chat-shell::before{content:"";position:absolute;inset:-18% -12%;z-index:-2;pointer-events:none;background:
+ radial-gradient(42% 32% at 18% 18%,rgba(0,0,0,.34),transparent 68%),
+ radial-gradient(36% 48% at 82% 28%,rgba(0,0,0,.25),transparent 70%),
+ radial-gradient(48% 36% at 42% 74%,rgba(0,0,0,.30),transparent 72%),
+ radial-gradient(30% 44% at 92% 88%,rgba(0,0,0,.22),transparent 70%);
+ filter:blur(18px) contrast(1.15);transform:rotate(-5deg) scale(1.12);opacity:.34}
+.chat-shell::after{content:"";position:absolute;inset:-10%;z-index:-1;pointer-events:none;background:
+ radial-gradient(28% 52% at 26% 42%,rgba(0,0,0,.16),transparent 68%),
+ radial-gradient(34% 38% at 68% 64%,rgba(0,0,0,.14),transparent 70%);
+ filter:blur(34px);opacity:.5}
+html[data-theme="night"] .chat-shell::before{background:
+ radial-gradient(42% 32% at 18% 18%,rgba(20,84,145,.30),transparent 68%),
+ radial-gradient(36% 48% at 82% 28%,rgba(10,55,100,.28),transparent 70%),
+ radial-gradient(48% 36% at 42% 74%,rgba(16,67,118,.25),transparent 72%),
+ radial-gradient(30% 44% at 92% 88%,rgba(4,30,58,.34),transparent 70%);opacity:.55}
+html[data-theme="night"] .chat-shell::after{background:
+ radial-gradient(28% 52% at 26% 42%,rgba(22,83,140,.20),transparent 68%),
+ radial-gradient(34% 38% at 68% 64%,rgba(7,42,78,.20),transparent 70%);opacity:.62}
+html[data-theme="day"] .chat-shell::before{opacity:.28}
+html[data-theme="day"] .chat-shell::after{opacity:.34}
+.chat-shell>*{position:relative;z-index:1}
+.chat-shell.chat-medium,.chat-shell.chat-long{background:rgba(21,23,28,.34)}
+html[data-theme="day"] .chat-shell.chat-medium,html[data-theme="day"] .chat-shell.chat-long{background:rgba(255,255,255,.42)}
+html[data-theme="day"] .chat-shell.chat-long{background:rgba(255,255,255,.48)}
 @media (prefers-reduced-motion:no-preference){.fade{animation:fade .22s ease}@keyframes fade{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes msgIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}}
 
-<style>
 .story-state{margin-top:5px;font-size:9px;letter-spacing:.14em;color:#6f737d;text-transform:uppercase}.story-state.tense{color:#bfc3cc}.typing{align-self:flex-start;display:flex;gap:4px;padding:13px 16px;background:var(--bubble);border-radius:19px 19px 19px 7px}.typing i{width:5px;height:5px;border-radius:50%;background:#8f939d;animation:typingDot 1s infinite}.typing i:nth-child(2){animation-delay:.16s}.typing i:nth-child(3){animation-delay:.32s}@keyframes typingDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
-</style></style>
+</style>
 </head>
 <body>
 <main class="app" id="app">
