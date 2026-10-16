@@ -162,8 +162,8 @@ const audio={
 };
 try{audio.enabled=localStorage.getItem("doPosleSound")!=="0"}catch(e){}
 function updateSoundButton(){const b=document.getElementById("soundToggle");if(!b)return;b.textContent=audio.enabled?"🔊":"🔇";b.setAttribute("aria-label",audio.enabled?"Выключить звук":"Включить звук")}
-function audioMoodFor(k){if(nodes[k]&&nodes[k].type==="end")return .06;if(["demand_explain","involvement","help","help_prepressure"].includes(k))return .72;if(["secrecy_question","secrecy_why","secrecy_accept","observer_stay"].includes(k))return .42;if(["belonging","loyalty_yes","loyalty_question","loyalty_silent","observer_response"].includes(k))return .24;return .08}
-function storyPhase(k){if(nodes[k]&&nodes[k].type==="end")return "after";if(["demand_explain","involvement","help","help_prepressure","secrecy_accept","secrecy_continue"].includes(k))return "pressure";if(["belonging","loyalty_yes","loyalty_question","loyalty_silent","observer_response","observer_stay","secrecy_question","secrecy_why"].includes(k))return "shift";return "calm"}
+function audioMoodFor(k){if(/^end_/.test(k))return .06;if(["demand_explain","involvement","help","help_prepressure"].includes(k))return .72;if(["secrecy_question","secrecy_why","secrecy_accept","observer_stay"].includes(k))return .42;if(["belonging","loyalty_yes","loyalty_question","loyalty_silent","observer_response"].includes(k))return .24;return .08}
+function storyPhase(k){if(/^end_/.test(k))return "after";if(["demand_explain","involvement","help","help_prepressure","secrecy_accept","secrecy_continue"].includes(k))return "pressure";if(["belonging","loyalty_yes","loyalty_question","loyalty_silent","observer_response","observer_stay","secrecy_question","secrecy_why"].includes(k))return "shift";return "calm"}
 function playIncomingFor(n){if(!audio.enabled||!audio.started||!n)return;const all=[];if(Array.isArray(n.chat))all.push(...n.chat);if(Array.isArray(n.chatAfter))all.push(...n.chatAfter);const count=all.filter(m=>m[0]==="them").length;for(let i=0;i<count;i++)setTimeout(()=>audio.notify(),700+i*620)}
 function revealMessages(){
   const msgs=[...screen.querySelectorAll('.msg.them')];
